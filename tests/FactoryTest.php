@@ -3,6 +3,7 @@ namespace Tests;
 
 use CheckedInstance\Factory;
 use CheckedInstance\FactoryFailureException;
+use CheckedInstance\InstanceCorruptException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -70,6 +71,13 @@ class FactoryTest extends TestCase
     {
         $factory = Factory::for(TestingNonInstance::class);
         $this->expectException(FactoryFailureException::class);
+        $factory->make();
+    }
+
+    public function testNotSettingRequiredThrowsExceptionOnMake()
+    {
+        $factory = Factory::for(TestingRequiredInstance::class);
+        $this->expectException(InstanceCorruptException::class);
         $factory->make();
     }
 }
