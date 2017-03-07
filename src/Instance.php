@@ -32,7 +32,7 @@ class Instance implements InstanceInterface
      */
     protected function get($key)
     {
-        return $this->config[$key];
+        return $this->config[$key] ?? null;
     }
 
     /**
