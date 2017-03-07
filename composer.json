@@ -1,0 +1,25 @@
+{
+  "name": "jankal/checked-instance",
+  "description": "Being able to create instances from a factory and only return valid instances",
+  "minimum-stability": "dev",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Alexander Jank",
+      "email": "himself@alexanderjank.de"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "CheckedInstance\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "6.0.*"
+  }
+}
