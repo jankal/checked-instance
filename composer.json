@@ -22,5 +22,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "6.0.*"
+  },
+  "require": {
+    "psr/container": "1.0.0"
   }
 }

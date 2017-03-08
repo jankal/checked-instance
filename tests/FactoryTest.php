@@ -80,4 +80,124 @@ class FactoryTest extends TestCase
         $this->expectException(InstanceCorruptException::class);
         $factory->make();
     }
+
+    public function testContainerInjection()
+    {
+        $c = new TestContainer();
+        $c->set('subscriptionKey', '454657645');
+        Factory::container($c);
+        $factory = Factory::for (TestingRequiredInstance::class);
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingRequiredInstance::class, $instance);
+    }
+
+    public function testContainerInjectionWithPrefix()
+    {
+        $c = new TestContainer();
+        $c->set('reqInst.subscriptionKey', '454657645');
+        Factory::container($c);
+        $factory = Factory::prefix('reqInst.');
+        $factory->as(TestingRequiredInstance::class);
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingRequiredInstance::class, $instance);
+    }
+
+    public function testSettingSubjectClassThroughAs()
+    {
+        $factory = new Factory();
+        $factory->as(TestingInstance::class);
+        $this->assertEquals(TestingInstance::class, $factory->getFor());
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingInstance::class, $instance);
+    }
+
+    public function testMethodChaining()
+    {
+        $factory = new Factory();
+        $this->assertInstanceOf(Factory::class, $factory->as(TestingInstance::class));
+        $this->assertInstanceOf(Factory::class, $factory->with('foo', 'baaar'));
+    }
+
+    public function testImplementationInjection()
+    {
+        $c = new TestContainer();
+        $c->set(TestingNonInstance::class, new TestingNonInstance());
+        Factory::container($c);
+        $factory = Factory::for (TestingImplementationInjectionInstance::class);
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingImplementationInjectionInstance::class, $instance);
+        $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
+    }
+
+    public function testMixedRequiresInstanceMixedContainer()
+    {
+        $c = new TestContainer();
+        $c->set(TestingNonInstance::class, new TestingNonInstance());
+        Factory::container($c);
+        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $factory->with('subscriptionKey', '454657645');
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
+        $this->assertEquals('454657645', $instance->getSubscriptionKey());
+        $this->assertTrue($instance->check());
+    }
+
+    public function testMixedRequiresInstanceContainerOnly()
+    {
+        $c = new TestContainer();
+        $c->set(TestingNonInstance::class, new TestingNonInstance());
+        $c->set('subscriptionKey', '454657645');
+        Factory::container($c);
+        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
+        $this->assertEquals('454657645', $instance->getSubscriptionKey());
+        $this->assertTrue($instance->check());
+    }
+
+    public function testMixedRequiresInstanceSet()
+    {
+        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $factory->with('ins', new TestingNonInstance());
+        $factory->with('subscriptionKey', '454657645');
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
+        $this->assertEquals('454657645', $instance->getSubscriptionKey());
+        $this->assertTrue($instance->check());
+    }
+
+    public function testRequiredImplementationInstantiation()
+    {
+        $factory = Factory::for (TestingImplementationInjectionInstance::class);
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingImplementationInjectionInstance::class, $instance);
+        $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
+    }
+
+    public function testRequiredImplementationInstantiationOnMixedWithContainer()
+    {
+        $c = new TestContainer();
+        $c->set('subscriptionKey', '454657645');
+        Factory::container($c);
+        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingImplementationMixedInjectionInstance::class, $instance);
+        $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
+    }
+
+    public function testRequiredImplementationInstantiationOnMixed()
+    {
+        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $factory->with('subscriptionKey', '454657645');
+        $instance = $factory->make();
+        $this->assertInstanceOf(TestingImplementationMixedInjectionInstance::class, $instance);
+        $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
+    }
+
+    public function testNotInstatiateClassWithRequiredConstructorParameters()
+    {
+        $factory = Factory::for (TestingImplementationInjectionInstanceWithConstructDependency::class);
+        $this->expectException(InstanceCorruptException::class);
+        $instance = $factory->make();
+    }
 }

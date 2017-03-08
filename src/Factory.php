@@ -1,6 +1,8 @@
 <?php
 namespace CheckedInstance;
 
+use Psr\Container\ContainerInterface;
+
 /**
  * Class Factory
  * @package CheckedInstance
@@ -8,14 +10,51 @@ namespace CheckedInstance;
 class Factory
 {
     /**
+     * @var ContainerInterface
+     */
+    protected static $container;
+    /**
      * @var string
      */
     protected $for;
-
+    /**
+     * @var string
+     */
+    protected $prefix = '';
     /**
      * @var array
      */
     private $vars = [];
+
+    /**
+     * @param string $class
+     * @return Factory
+     */
+    public static function for (string $class) : Factory
+    {
+        $instance = new self();
+        $instance->for = $class;
+        return $instance;
+    }
+
+    /**
+     * @param ContainerInterface $c
+     */
+    public static function container(ContainerInterface $c)
+    {
+        self::$container = $c;
+    }
+
+    /**
+     * @param string $prefix
+     * @return Factory
+     */
+    public static function prefix(string $prefix) : Factory
+    {
+        $instance = new self();
+        $instance->prefix = $prefix;
+        return $instance;
+    }
 
     /**
      * @param string|null $class
@@ -34,6 +73,11 @@ class Factory
         if (!($instatnce instanceof InstanceInterface)) {
             throw new FactoryFailureException($class . ' is not implementing the InstanceInterface!');
         }
+        if (isset(self::$container)) {
+            $this->setFromContainer($class);
+        } else {
+            $this->guessInstantiation($class);
+        }
         foreach ($this->vars as $name => $var) {
             $instatnce->set($name, $var);
         }
@@ -42,11 +86,71 @@ class Factory
     }
 
     /**
+     * @param string $for
+     */
+    private function setFromContainer(string $for)
+    {
+        $req = $for::getRequired();
+        if (array_values($req) == $req) {
+            foreach ($req as $field) {
+                if (!isset($this->vars[$field]) && self::$container->has($this->prefix.$field)) {
+                    $this->vars[$field] = self::$container->get($this->prefix.$field);
+                }
+            }
+        } else {
+            foreach ($req as $implementation => $field) {
+                if (!isset($this->vars[$field])) {
+                    if (class_exists($implementation)) {
+                        if (self::$container->has($implementation)) {
+                            $this->vars[$field] = self::$container->get($implementation);
+                        } elseif ($this->classInstantiateable($implementation)) {
+                            $this->vars[$field] = new $implementation();
+                        }
+                    } else {
+                        $this->vars[$field] = self::$container->get($this->prefix.$field);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $implementation
+     * @return bool
+     */
+    private function classInstantiateable($implementation) : bool
+    {
+        $class = new \ReflectionClass($implementation);
+        if (!$class->hasMethod('__construct')) {
+            return true;
+        }
+        $constructor = $class->getConstructor();
+        return $constructor->getNumberOfRequiredParameters() == 0;
+    }
+
+    /**
+     * @param string $class
+     */
+    private function guessInstantiation(string $class)
+    {
+        $req = $class::getRequired();
+        if (array_values($req) != $req) {
+            foreach ($req as $implementation => $field) {
+                if (!is_numeric($implementation)) {
+                    if (class_exists($implementation) && $this->classInstantiateable($implementation)) {
+                        $this->vars[$field] = new $implementation();
+                    }
+                }
+            }
+        }
+    }
+
+    /**
      * @param $key
      * @param $value
      * @return Factory
      */
-    public function with($key, $value)
+    public function with($key, $value) : Factory
     {
         $this->vars[$key] = $value;
         return $this;
@@ -69,13 +173,12 @@ class Factory
     }
 
     /**
-     * @param string $class
+     * @param string $for
      * @return Factory
      */
-    public static function for(string $class)
+    public function as (string $for) : Factory
     {
-        $instance = new self();
-        $instance->for = $class;
-        return $instance;
+        $this->for = $for;
+        return $this;
     }
 }
