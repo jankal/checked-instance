@@ -1,7 +1,7 @@
 {
   "name": "jankal/checked-instance",
   "description": "Being able to create instances from a factory and only return valid instances",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "license": "GPL-3.0",
   "type": "library",
   "authors": [
