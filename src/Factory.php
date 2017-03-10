@@ -71,7 +71,7 @@ class Factory
         }
         $instatnce = new $class();
         if (!($instatnce instanceof InstanceInterface)) {
-            throw new FactoryFailureException($class . ' is not implementing the InstanceInterface!');
+            throw new FactoryFailureException($class.' is not implementing the InstanceInterface!');
         }
         if (isset(self::$container)) {
             $this->setFromContainer($class);
