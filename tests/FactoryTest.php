@@ -86,7 +86,7 @@ class FactoryTest extends TestCase
         $c = new TestContainer();
         $c->set('subscriptionKey', '454657645');
         Factory::container($c);
-        $factory = Factory::for (TestingRequiredInstance::class);
+        $factory = Factory::for(TestingRequiredInstance::class);
         $instance = $factory->make();
         $this->assertInstanceOf(TestingRequiredInstance::class, $instance);
     }
@@ -123,7 +123,7 @@ class FactoryTest extends TestCase
         $c = new TestContainer();
         $c->set(TestingNonInstance::class, new TestingNonInstance());
         Factory::container($c);
-        $factory = Factory::for (TestingImplementationInjectionInstance::class);
+        $factory = Factory::for(TestingImplementationInjectionInstance::class);
         $instance = $factory->make();
         $this->assertInstanceOf(TestingImplementationInjectionInstance::class, $instance);
         $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
@@ -134,7 +134,7 @@ class FactoryTest extends TestCase
         $c = new TestContainer();
         $c->set(TestingNonInstance::class, new TestingNonInstance());
         Factory::container($c);
-        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $factory = Factory::for(TestingImplementationMixedInjectionInstance::class);
         $factory->with('subscriptionKey', '454657645');
         $instance = $factory->make();
         $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
@@ -148,7 +148,7 @@ class FactoryTest extends TestCase
         $c->set(TestingNonInstance::class, new TestingNonInstance());
         $c->set('subscriptionKey', '454657645');
         Factory::container($c);
-        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $factory = Factory::for(TestingImplementationMixedInjectionInstance::class);
         $instance = $factory->make();
         $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
         $this->assertEquals('454657645', $instance->getSubscriptionKey());
@@ -157,7 +157,7 @@ class FactoryTest extends TestCase
 
     public function testMixedRequiresInstanceSet()
     {
-        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $factory = Factory::for(TestingImplementationMixedInjectionInstance::class);
         $factory->with('ins', new TestingNonInstance());
         $factory->with('subscriptionKey', '454657645');
         $instance = $factory->make();
@@ -168,7 +168,7 @@ class FactoryTest extends TestCase
 
     public function testRequiredImplementationInstantiation()
     {
-        $factory = Factory::for (TestingImplementationInjectionInstance::class);
+        $factory = Factory::for(TestingImplementationInjectionInstance::class);
         $instance = $factory->make();
         $this->assertInstanceOf(TestingImplementationInjectionInstance::class, $instance);
         $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
@@ -179,7 +179,7 @@ class FactoryTest extends TestCase
         $c = new TestContainer();
         $c->set('subscriptionKey', '454657645');
         Factory::container($c);
-        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $factory = Factory::for(TestingImplementationMixedInjectionInstance::class);
         $instance = $factory->make();
         $this->assertInstanceOf(TestingImplementationMixedInjectionInstance::class, $instance);
         $this->assertInstanceOf(TestingNonInstance::class, $instance->getIns());
@@ -187,7 +187,7 @@ class FactoryTest extends TestCase
 
     public function testRequiredImplementationInstantiationOnMixed()
     {
-        $factory = Factory::for (TestingImplementationMixedInjectionInstance::class);
+        $factory = Factory::for(TestingImplementationMixedInjectionInstance::class);
         $factory->with('subscriptionKey', '454657645');
         $instance = $factory->make();
         $this->assertInstanceOf(TestingImplementationMixedInjectionInstance::class, $instance);
@@ -196,7 +196,7 @@ class FactoryTest extends TestCase
 
     public function testNotInstatiateClassWithRequiredConstructorParameters()
     {
-        $factory = Factory::for (TestingImplementationInjectionInstanceWithConstructDependency::class);
+        $factory = Factory::for(TestingImplementationInjectionInstanceWithConstructDependency::class);
         $this->expectException(InstanceCorruptException::class);
         $instance = $factory->make();
     }
