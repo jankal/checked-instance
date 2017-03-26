@@ -1,4 +1,4 @@
-#Checked Instances
+# Checked Instances
 
 [![Coverage Status](https://coveralls.io/repos/github/jankal/checked-instance/badge.svg?branch=master)](https://coveralls.io/github/jankal/checked-instance?branch=master)
 [![Build Status](https://travis-ci.org/jankal/checked-instance.svg?branch=master)](https://travis-ci.org/jankal/checked-instance)
